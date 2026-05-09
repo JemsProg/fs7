@@ -73,7 +73,7 @@ def profile_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def cart_view(request):
-    cart_items = cartUser.objects.filter(user=request.user)
+    cart_items = cartUser.objects.filter(user_id=request.user)
     serializer = CartItemSerializer(cart_items, many=True)
     return Response(serializer.data)
 
@@ -91,7 +91,7 @@ def add_to_cart(request):
     qty = serializer.validated_data['qty']
 
     cart_item, created = cartUser.objects.get_or_create(
-        user=request.user,
+        user_id=request.user,
         product=product,
         defaults={'qty':qty},
     )
@@ -108,7 +108,7 @@ def add_to_cart(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_cart_item(request, pk):
-    cart_item = get_object_or_404(cartUser, pk=pk, user=request.user)
+    cart_item = get_object_or_404(cartUser, pk=pk, user_id=request.user)
     serializer = CartItemSerializer(cart_item, data=request.data, partial=True)
 
     if serializer.is_valid():
@@ -120,7 +120,7 @@ def update_cart_item(request, pk):
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_cart_item(request, pk):
-    cart_item = get_object_or_404(cartUser, pk=pk, user=request.user)
+    cart_item = get_object_or_404(cartUser, pk=pk, user_id=request.user)
     cart_item.delete()
 
     return Response(status=status.HTTP_204_NO_CONTENT)

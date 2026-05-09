@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import { BASE_URL } from "../api/base";
+import { authRequest } from "../api/Auth_refresh";
 
 const getProductImageUrl = (image) => {
   if (!image) return "/images/switch.png";
@@ -21,8 +22,12 @@ const Product_Details = () => {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [error, setError] = useState("");
+  const [cartMessage, setCartMessage] = useState("");
+  const [cartError, setCartError] = useState("");
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -56,11 +61,38 @@ const Product_Details = () => {
     }
   };
 
-  const handleAddToCart = () => {
-    console.log("Added to cart:", {
-      product,
-      quantity,
-    });
+  const handleAddToCart = async () => {
+    const accessToken = localStorage.getItem("access_token");
+    const refreshToken = localStorage.getItem("refresh_token");
+
+    if (!accessToken && !refreshToken) {
+      navigate("/login");
+      return;
+    }
+
+    setIsAddingToCart(true);
+    setCartMessage("");
+    setCartError("");
+
+    try {
+      await authRequest("post", "/cart/add/", {
+        product_id: product.product_id,
+        qty: quantity,
+      });
+
+      setCartMessage(`${quantity} item added to your cart.`);
+    } catch (err) {
+      console.log(err);
+
+      if (err.response?.status === 401) {
+        navigate("/login");
+        return;
+      }
+
+      setCartError("This product could not be added to your cart.");
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   if (isLoading) return <Loading />;
@@ -132,11 +164,26 @@ const Product_Details = () => {
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={product.countInStock < 1}
-              className="mt-4 w-64 bg-[#0f2557] py-2 text-sm text-white hover:bg-[#172f68]"
+              disabled={product.countInStock < 1 || isAddingToCart}
+              className="mt-4 w-64 bg-[#0f2557] py-2 text-sm text-white transition hover:bg-[#172f68] disabled:cursor-not-allowed disabled:bg-gray-400"
             >
-              Add to cart
+              {isAddingToCart ? "Adding..." : "Add to cart"}
             </button>
+
+            {cartMessage && (
+              <p className="mt-3 text-sm font-semibold text-green-700">
+                {cartMessage}{" "}
+                <Link to="/cart" className="underline">
+                  View cart
+                </Link>
+              </p>
+            )}
+
+            {cartError && (
+              <p className="mt-3 text-sm font-semibold text-red-600">
+                {cartError}
+              </p>
+            )}
           </div>
         </div>
 

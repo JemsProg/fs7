@@ -16,7 +16,8 @@ Primary use cases:
 
 - Customers can browse a product catalog.
 - Customers can open a product details page to view price, stock, image, and description.
-- Customers can view a shopping cart UI with item quantities, item removal, subtotal, total, and checkout action.
+- Customers can add products to the authenticated shopping cart from the product details page.
+- Customers can view a shopping cart UI with live item quantities, item removal, subtotal, total, and checkout action.
 - Customers can log in with JWT-based authentication.
 - Authenticated users can access a protected profile page.
 - The backend includes cart APIs for adding, viewing, updating, and deleting cart items.
@@ -53,11 +54,12 @@ Important frontend files:
 - `frontend/src/components/Hero.jsx` renders the homepage hero section.
 - `frontend/src/pages/Home.jsx` combines the hero and product listing.
 - `frontend/src/pages/Products.jsx` fetches and displays products from the backend.
-- `frontend/src/pages/Product_Details.jsx` fetches one product and displays product details with quantity controls.
-- `frontend/src/pages/Cart.jsx` renders the shopping cart layout with quantity controls, remove buttons, order summary, and checkout button.
+- `frontend/src/pages/Product_Details.jsx` fetches one product, displays product details with quantity controls, and posts authenticated add-to-cart requests.
+- `frontend/src/pages/Cart.jsx` loads authenticated cart items from the backend and supports quantity updates, item removal, order summary, and checkout button.
 - `frontend/src/pages/Login.jsx` authenticates users through the JWT token endpoint.
 - `frontend/src/pages/Register.jsx` contains the registration form UI.
 - `frontend/src/pages/Profile.jsx` renders the protected profile and purchase history layout.
+- `frontend/src/api/Auth_refresh.js` wraps authorized API requests and refreshes expired access tokens with the saved refresh token.
 - `frontend/src/context/AuthProvider.jsx` stores authentication state based on `localStorage`.
 - `frontend/src/context/PrivateRoute.jsx` protects routes that require login.
 
@@ -141,7 +143,8 @@ The project already has the foundation for a complete e-commerce workflow:
 
 - Product browsing is connected to the backend.
 - Product detail pages are connected to the backend.
-- A shopping cart page exists in the frontend and is reachable from the header cart icon.
+- Product detail pages can add items to the authenticated backend cart.
+- The shopping cart page is connected to backend cart endpoints for viewing, updating, and deleting items.
 - Login is connected to JWT authentication.
 - Protected routing is available.
 - Backend cart endpoints exist.
@@ -150,10 +153,8 @@ The project already has the foundation for a complete e-commerce workflow:
 Some areas appear to still be in progress:
 
 - The register page currently has UI structure but does not yet submit to the backend register endpoint.
-- The product detail `Add to cart` action currently logs data instead of calling the cart API.
-- The cart page currently uses sample local cart data instead of loading authenticated cart items from the backend cart endpoint.
 - The profile page currently uses sample profile and purchase-history data.
-- Checkout and payment flows have backend model foundations but no complete frontend workflow yet.
+- Checkout and payment flows have backend model foundations, but the checkout button is still UI-only.
 
 ### AI Development Guidance
 
