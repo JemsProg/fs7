@@ -1,6 +1,12 @@
 import React, { createContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { BASE_URL } from "../api/base";
+
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem(
+  "access_token",
+)}`;
 
 export const AuthContext = createContext();
 
